@@ -1,36 +1,54 @@
 <template>
-  <div class="board"></div>
+  <div class="board">
+    <div class="flex flex-row items-start">
+      <div class="column" v-for="column in board.columns" :key="column.id">
+        <div class="flex items-center mb-2 font-bold">
+          {{ column.name }}
+        </div>
+
+        <div class="list-reset">
+          <div class="task" v-for="task in column.tasks" :key="task.id">
+            <span class="w-full flex-no-shrink font-bold">
+              {{ task.name }}
+            </span>
+            <p
+              v-if="task.description"
+              class="w-full flex-no-shrink mt-1 text-sm"
+            >
+              {{ task.description }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
-<style>
+<script>
+import { mapState } from 'vuex';
+
+export default {
+  name: 'Board-View',
+  computed: {
+    ...mapState({
+      board: 'board'
+    })
+  }
+};
+</script>
+
+<style lang="postcss">
 .task {
-  align-items: center;
-  background-color: #fff;
-  border-radius: 0.25rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  color: #4a5568;
-  display: flex;
-  flex-wrap: wrap;
-  margin-bottom: 0.5rem;
-  padding: 0.5rem;
-  text-decoration: none;
+  @apply flex items-center flex-wrap shadow mb-2 py-2 px-2 rounded bg-white text-gray-700 no-underline;
 }
 
 .column {
-  background-color: #f7fafc;
-  border-radius: 0.25rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  margin-right: 1rem;
+  @apply bg-gray-100 p-2 mr-4 text-left shadow rounded;
   min-width: 350px;
-  padding: 0.5rem;
-  text-align: left;
 }
 
 .board {
-  padding: 1rem;
-  background-color: #4fd1c5;
-  height: 100%;
-  overflow: auto;
+  @apply p-4 bg-teal-400 h-full overflow-auto;
 }
 
 .task-bg {

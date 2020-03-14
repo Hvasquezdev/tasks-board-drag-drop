@@ -4,7 +4,13 @@
   </div>
 </template>
 
-<style>
+<script>
+export default {
+  name: 'app'
+};
+</script>
+
+<style lang="postcss">
 body,
 html {
   height: 100%;
@@ -16,5 +22,9 @@ html {
   text-align: center;
   color: #2c3e50;
   height: 100%;
+}
+
+.container {
+  @apply mx-auto;
 }
 </style>

@@ -5,23 +5,48 @@ export default {
   columns: [
     {
       name: 'todo',
+      id: uuid(),
       tasks: [
         {
-          descriptions: '',
+          description: 'Do task one',
           id: uuid(),
           name: 'First Task',
           userAssigned: null
         },
         {
-          descriptions: '',
+          description: '',
           id: uuid(),
           name: 'Second Task',
           userAssigned: null
         },
         {
-          descriptions: '',
+          description: '',
           id: uuid(),
           name: 'Third Task',
+          userAssigned: null
+        }
+      ]
+    },
+    {
+      name: 'review',
+      id: uuid(),
+      tasks: [
+        {
+          description: '',
+          id: uuid(),
+          name: 'First review',
+          userAssigned: null
+        },
+        {
+          description: '',
+          id: uuid(),
+          name: 'Second review',
+          userAssigned: null
+        },
+        {
+          description: '',
+          id: uuid(),
+          name: 'Third review',
           userAssigned: null
         }
       ]
