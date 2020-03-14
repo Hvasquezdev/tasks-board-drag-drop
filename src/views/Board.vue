@@ -7,7 +7,12 @@
         </div>
 
         <div class="list-reset">
-          <div class="task" v-for="task in column.tasks" :key="task.id">
+          <div
+            class="task cursor-pointer"
+            v-for="task in column.tasks"
+            :key="task.id"
+            @click="openTaskModal(task)"
+          >
             <span class="w-full flex-no-shrink font-bold">
               {{ task.name }}
             </span>
@@ -21,6 +26,10 @@
         </div>
       </div>
     </div>
+
+    <div v-if="isTaskOpen" class="task-modal" @click="closeTaskModal">
+      <router-view></router-view>
+    </div>
   </div>
 </template>
 
@@ -32,7 +41,25 @@ export default {
   computed: {
     ...mapState({
       board: 'board'
-    })
+    }),
+    isTaskOpen() {
+      return this.$route.name === 'task';
+    }
+  },
+  methods: {
+    openTaskModal(task) {
+      this.$router.push({
+        name: 'task',
+        params: {
+          id: task.id
+        }
+      });
+    },
+    closeTaskModal() {
+      this.$router.push({
+        name: 'board'
+      });
+    }
   }
 };
 </script>
@@ -51,8 +78,14 @@ export default {
   @apply p-4 bg-teal-400 h-full overflow-auto;
 }
 
-.task-bg {
+.task-modal {
   position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
   background: rgba(0, 0, 0, 0.5);
 }
 </style>
