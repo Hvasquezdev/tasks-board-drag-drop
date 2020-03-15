@@ -5,9 +5,11 @@
         class="column"
         v-for="column in board.columns"
         :key="column.id"
-        @drop="moveTask($event, column.tasks)"
+        draggable="true"
+        @drop="moveTaskOrColumn($event, column.tasks, column)"
         @dragover.prevent=""
         @dragenter.prevent=""
+        @dragstart.self="pickupColumn($event, column.id)"
       >
         <div class="flex items-center mb-2 font-bold">
           {{ column.name }}
@@ -18,7 +20,7 @@
             class="task"
             v-for="task in column.tasks"
             :key="task.id"
-            draggable
+            draggable="true"
             @dragstart="pickupTask($event, task.id, column.id)"
             @click="openTaskModal(task)"
           >
@@ -97,6 +99,30 @@ export default {
 
       e.dataTransfer.setData('task-index', taskIndex);
       e.dataTransfer.setData('from-column-index', columnIndex);
+      e.dataTransfer.setData('type', 'task');
+    },
+    pickupColumn(e, columnId) {
+      const column = this.board.columns.find(column => column.id === columnId);
+      const columnIndex = this.board.columns.indexOf(column);
+
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.dropEffect = 'move';
+
+      e.dataTransfer.setData('from-column-index', columnIndex);
+      e.dataTransfer.setData('type', 'column');
+    },
+    moveTaskOrColumn(e, toTasks, toColumn) {
+      const type = e.dataTransfer.getData('type');
+
+      switch (type) {
+        case 'task':
+          this.moveTask(e, toTasks);
+          break;
+
+        default:
+          this.moveColumn(e, toColumn);
+          break;
+      }
     },
     moveTask(e, toTasks) {
       const fromIndex = e.dataTransfer.getData('from-column-index');
@@ -107,6 +133,15 @@ export default {
         from: fromTasks,
         to: toTasks,
         taskIndex
+      });
+    },
+    moveColumn(e, toColumn) {
+      const fromIndex = e.dataTransfer.getData('from-column-index');
+      const toIndex = this.board.columns.indexOf(toColumn);
+
+      this.$store.commit('MOVE_COLUMN', {
+        fromIndex,
+        toIndex
       });
     }
   }
