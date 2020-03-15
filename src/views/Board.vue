@@ -23,11 +23,18 @@
               {{ task.description }}
             </p>
           </div>
+
+          <input
+            type="text"
+            class="block p-2 w-full bg-transparent outline-none text-gray-500"
+            placeholder="+ Enter new task"
+            @keyup.enter="createTask($event, column.tasks)"
+          />
         </div>
       </div>
     </div>
 
-    <div v-if="isTaskOpen" class="task-modal" @click="closeTaskModal">
+    <div v-if="isTaskOpen" class="task-modal" @click.self="closeTaskModal">
       <router-view></router-view>
     </div>
   </div>
@@ -59,6 +66,14 @@ export default {
       this.$router.push({
         name: 'board'
       });
+    },
+    createTask(e, tasks) {
+      this.$store.commit('CREATE_TASK', {
+        tasks,
+        name: e.target.value
+      });
+
+      e.target.value = null;
     }
   }
 };
