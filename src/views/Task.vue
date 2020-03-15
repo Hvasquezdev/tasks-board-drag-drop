@@ -12,7 +12,7 @@
           'border-green-300': updatedKey === 'name'
         }"
         placeholder="Task name"
-        v-model="clonedTask.name"
+        v-model.trim="clonedTask.name"
         @keyup.enter="onUpdateTaskProperty('name')"
       />
       <textarea
@@ -23,7 +23,7 @@
           'border-green-300': updatedKey === 'description'
         }"
         placeholder="Task description"
-        v-model="clonedTask.description"
+        v-model.trim="clonedTask.description"
         @keyup.enter="onUpdateTaskProperty('description')"
       ></textarea>
     </div>

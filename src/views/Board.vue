@@ -22,6 +22,9 @@
             :key="task.id"
             draggable="true"
             @dragstart="pickupTask($event, task.id, column.id)"
+            @drop.stop="moveTaskOrColumn($event, column.tasks, column, task)"
+            @dragover.prevent=""
+            @dragenter.prevent=""
             @click="openTaskModal(task)"
           >
             <div class="task-content">
@@ -38,12 +41,14 @@
           </div>
         </div>
 
-        <input
-          type="text"
-          class="block p-2 w-full bg-transparent outline-none text-gray-500 mt-2"
-          placeholder="+ Enter new task"
-          @keyup.enter="createTask($event, column.tasks)"
-        />
+        <div class="new-task--input pt-2">
+          <input
+            type="text"
+            class="block p-2 w-full bg-transparent outline-none text-gray-500"
+            placeholder="+ Enter new task"
+            @keyup.enter="createTask($event, column.tasks)"
+          />
+        </div>
       </div>
     </div>
 
@@ -111,12 +116,12 @@ export default {
       e.dataTransfer.setData('from-column-index', columnIndex);
       e.dataTransfer.setData('type', 'column');
     },
-    moveTaskOrColumn(e, toTasks, toColumn) {
+    moveTaskOrColumn(e, toTasks, toColumn, toTask) {
       const type = e.dataTransfer.getData('type');
 
       switch (type) {
         case 'task':
-          this.moveTask(e, toTasks);
+          this.moveTask(e, toTasks, toTask);
           break;
 
         default:
@@ -124,15 +129,17 @@ export default {
           break;
       }
     },
-    moveTask(e, toTasks) {
+    moveTask(e, toTasks, toTask = undefined) {
       const fromIndex = e.dataTransfer.getData('from-column-index');
       const taskIndex = e.dataTransfer.getData('task-index');
       const fromTasks = this.board.columns[fromIndex].tasks;
+      const toTaskIndex = toTasks.indexOf(toTask);
 
       this.$store.commit('MOVE_TASK', {
         from: fromTasks,
+        fromIndex: taskIndex,
         to: toTasks,
-        taskIndex
+        toIndex: toTaskIndex
       });
     },
     moveColumn(e, toColumn) {
@@ -150,15 +157,15 @@ export default {
 
 <style lang="postcss">
 .task {
-  @apply pb-2;
+  @apply pt-2;
 }
 
 .task-content {
   @apply flex items-center flex-wrap shadow py-2 px-2 rounded bg-white text-gray-700 no-underline;
 }
 
-.task:last-child {
-  @apply pb-0;
+.task:first {
+  @apply pt-0;
 }
 
 .column {
