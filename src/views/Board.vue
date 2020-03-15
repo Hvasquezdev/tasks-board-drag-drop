@@ -11,13 +11,19 @@
         @dragenter.prevent=""
         @dragstart.self="pickupColumn($event, column.id)"
       >
-        <div class="flex items-center mb-2 font-bold">
-          {{ column.name }}
+        <div class="flex items-center">
+          <input
+            type="text"
+            class="block p-2 w-full bg-transparent outline-none font-bold cursor-pointer"
+            placeholder="Column name"
+            :value="column.name"
+            @keyup.enter="updateColumnName($event, column)"
+          />
         </div>
 
         <div class="list-reset">
           <div
-            class="task"
+            class="task cursor-pointer"
             v-for="task in column.tasks"
             :key="task.id"
             draggable="true"
@@ -50,6 +56,16 @@
           />
         </div>
       </div>
+
+      <div class="column flex">
+        <input
+          type="text"
+          class="p-2 flex-grow rounded outline-none text-gray-500"
+          placeholder="New column name"
+          v-model.trim="newColumnName"
+          @keyup.enter="createColumn"
+        />
+      </div>
     </div>
 
     <div v-if="isTaskOpen" class="task-modal" @click.self="closeTaskModal">
@@ -63,6 +79,11 @@ import { mapState } from 'vuex';
 
 export default {
   name: 'Board-View',
+  data() {
+    return {
+      newColumnName: null
+    };
+  },
   computed: {
     ...mapState({
       board: 'board'
@@ -92,6 +113,15 @@ export default {
       });
 
       e.target.value = null;
+    },
+    createColumn() {
+      if (!this.newColumnName) return;
+
+      this.$store.commit('CREATE_COLUMN', {
+        name: this.newColumnName
+      });
+
+      this.newColumnName = null;
     },
     pickupTask(e, taskId, columnId) {
       const column = this.board.columns.find(column => column.id === columnId);
@@ -150,6 +180,16 @@ export default {
         fromIndex,
         toIndex
       });
+    },
+    updateColumnName(e, column) {
+      if (!e.target.value.trim() || !column) return;
+
+      this.$store.commit('UPDATE_COLUMN_NAME', {
+        name: e.target.value.trim(),
+        column
+      });
+
+      e.target.blur();
     }
   }
 };
