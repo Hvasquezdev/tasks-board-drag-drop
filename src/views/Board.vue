@@ -1,36 +1,47 @@
 <template>
   <div class="board">
     <div class="flex flex-row items-start">
-      <div class="column" v-for="column in board.columns" :key="column.id">
+      <div
+        class="column"
+        v-for="column in board.columns"
+        :key="column.id"
+        @drop="moveTask($event, column.tasks)"
+        @dragover.prevent=""
+        @dragenter.prevent=""
+      >
         <div class="flex items-center mb-2 font-bold">
           {{ column.name }}
         </div>
 
         <div class="list-reset">
           <div
-            class="task cursor-pointer"
+            class="task"
             v-for="task in column.tasks"
             :key="task.id"
+            draggable
+            @dragstart="pickupTask($event, task.id, column.id)"
             @click="openTaskModal(task)"
           >
-            <span class="w-full flex-no-shrink font-bold">
-              {{ task.name }}
-            </span>
-            <p
-              v-if="task.description"
-              class="w-full flex-no-shrink mt-1 text-sm"
-            >
-              {{ task.description }}
-            </p>
+            <div class="task-content">
+              <span class="w-full flex-no-shrink font-bold">
+                {{ task.name }}
+              </span>
+              <p
+                v-if="task.description"
+                class="w-full flex-no-shrink mt-1 text-sm"
+              >
+                {{ task.description }}
+              </p>
+            </div>
           </div>
-
-          <input
-            type="text"
-            class="block p-2 w-full bg-transparent outline-none text-gray-500"
-            placeholder="+ Enter new task"
-            @keyup.enter="createTask($event, column.tasks)"
-          />
         </div>
+
+        <input
+          type="text"
+          class="block p-2 w-full bg-transparent outline-none text-gray-500 mt-2"
+          placeholder="+ Enter new task"
+          @keyup.enter="createTask($event, column.tasks)"
+        />
       </div>
     </div>
 
@@ -74,6 +85,29 @@ export default {
       });
 
       e.target.value = null;
+    },
+    pickupTask(e, taskId, columnId) {
+      const column = this.board.columns.find(column => column.id === columnId);
+      const columnIndex = this.board.columns.indexOf(column);
+      const task = column.tasks.find(task => task.id === taskId);
+      const taskIndex = column.tasks.indexOf(task);
+
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.dropEffect = 'move';
+
+      e.dataTransfer.setData('task-index', taskIndex);
+      e.dataTransfer.setData('from-column-index', columnIndex);
+    },
+    moveTask(e, toTasks) {
+      const fromIndex = e.dataTransfer.getData('from-column-index');
+      const taskIndex = e.dataTransfer.getData('task-index');
+      const fromTasks = this.board.columns[fromIndex].tasks;
+
+      this.$store.commit('MOVE_TASK', {
+        from: fromTasks,
+        to: toTasks,
+        taskIndex
+      });
     }
   }
 };
@@ -81,7 +115,15 @@ export default {
 
 <style lang="postcss">
 .task {
-  @apply flex items-center flex-wrap shadow mb-2 py-2 px-2 rounded bg-white text-gray-700 no-underline;
+  @apply pb-2;
+}
+
+.task-content {
+  @apply flex items-center flex-wrap shadow py-2 px-2 rounded bg-white text-gray-700 no-underline;
+}
+
+.task:last-child {
+  @apply pb-0;
 }
 
 .column {
