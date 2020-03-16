@@ -7,14 +7,31 @@
     @dragenter.prevent=""
     @dragstart.self="pickupColumn($event, column.id)"
   >
-    <div class="flex items-center">
+    <alert-remove-column v-if="isOpenRemoveAlert" class="mb-2" />
+
+    <div class="flex items-center justify-between">
       <input
         type="text"
-        class="block p-2 w-full bg-transparent outline-none font-bold cursor-pointer"
+        class="block flex-grow p-2 w-full bg-transparent outline-none font-bold cursor-pointer"
         placeholder="Column name"
         :value="column.name"
         @keyup.enter="updateColumnName($event, column)"
       />
+
+      <span
+        v-if="!isOpenRemoveAlert"
+        class="column--delete full-rounded"
+        @click="isOpenRemoveAlert = true"
+      >
+        x
+      </span>
+      <span
+        v-else
+        class="column--delete py-1 rounded"
+        @click="removeColumn(column)"
+      >
+        Confirm
+      </span>
     </div>
 
     <div v-if="column.tasks.length > 0" class="list-reset">
@@ -45,7 +62,13 @@ export default {
   name: 'board-column',
   mixins: [movingTasksAndColumns],
   components: {
-    BoardColumnTask: () => import('@/components/BoardColumnTask')
+    BoardColumnTask: () => import('@/components/BoardColumnTask'),
+    AlertRemoveColumn: () => import('@/components/AlertRemoveColumn')
+  },
+  data() {
+    return {
+      isOpenRemoveAlert: false
+    };
   },
   methods: {
     createTask(e, tasks) {
@@ -55,6 +78,10 @@ export default {
       });
 
       e.target.value = null;
+    },
+    removeColumn(column) {
+      this.$store.commit('REMOVE_COLUMN', { column });
+      this.isOpenRemoveAlert = false;
     },
     pickupColumn(e, columnId) {
       const column = this.board.columns.find(column => column.id === columnId);
@@ -84,5 +111,13 @@ export default {
 .column {
   @apply bg-gray-100 p-2 mr-4 text-left shadow rounded;
   min-width: 350px;
+}
+
+.column--delete {
+  @apply text-white bg-red-400 shadow font-bold ml-2 px-2;
+  cursor: pointer;
+}
+.full-rounded {
+  border-radius: 100%;
 }
 </style>

@@ -39,6 +39,10 @@ export default new Vuex.Store({
         tasks: []
       });
     },
+    REMOVE_COLUMN(state, { column }) {
+      const columnIndex = state.board.columns.indexOf(column);
+      state.board.columns.splice(columnIndex, 1);
+    },
     UPDATE_TASK(state, { task, key, value }) {
       task[key] = value;
     },
